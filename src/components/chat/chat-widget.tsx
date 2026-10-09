@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import { MessageCircle, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat() as any;
 
   return (
     <div className="z-50 relative">
@@ -45,7 +45,7 @@ export function ChatWidget() {
               Ask me about our products, pricing, or stock availability! I'm connected directly to the database.
             </div>
           ) : (
-            messages.map(m => (
+            messages.map((m: any) => (
               <div key={m.id} className={`max-w-[85%] rounded-xl px-4 py-2.5 text-sm ${m.role === 'user' ? 'bg-violet-600 text-white self-end rounded-br-none' : 'bg-white/10 text-neutral-200 self-start rounded-bl-none border border-white/5'}`}>
                 {m.content}
               </div>

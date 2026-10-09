@@ -154,7 +154,7 @@ export function OnboardingWizard() {
               <>
                 <LabelInputContainer>
                   <Label>Primary Category</Label>
-                  <Select onValueChange={(v) => form.setValue("category", v)}>
+                  <Select onValueChange={(v: string) => form.setValue("category", v)}>
                     <SelectTrigger className="h-10 bg-zinc-900 border-none rounded-md text-white">
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
@@ -164,12 +164,12 @@ export function OnboardingWizard() {
                       <SelectItem value="digital">Digital Products</SelectItem>
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.category && <ErrorMsg msg={form.formState.errors.category?.message as string} />}
+                  {form.formState.errors.category && <ErrorMsg msg={form.formState.errors.category?.message as any} />}
                 </LabelInputContainer>
 
                 <LabelInputContainer>
                   <Label>Business Type</Label>
-                  <Select onValueChange={(v) => form.setValue("businessType", v)}>
+                  <Select onValueChange={(v: string) => form.setValue("businessType", v)}>
                     <SelectTrigger className="h-10 bg-zinc-900 border-none rounded-md text-white">
                       <SelectValue placeholder="Select business type" />
                     </SelectTrigger>
@@ -178,7 +178,7 @@ export function OnboardingWizard() {
                       <SelectItem value="services">Services / Booking</SelectItem>
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.businessType && <ErrorMsg msg={form.formState.errors.businessType?.message as string} />}
+                  {form.formState.errors.businessType && <ErrorMsg msg={form.formState.errors.businessType?.message as any} />}
                 </LabelInputContainer>
               </>
             )}
