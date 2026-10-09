@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Store, Paintbrush, Package, CheckCircle2 } from "lucide-react";
+import { Store, Paintbrush, Package, CheckCircle2, Sparkles, Wand2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -43,6 +43,9 @@ export function OnboardingWizard() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAiMode, setIsAiMode] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -103,6 +106,31 @@ export function OnboardingWizard() {
     }
   };
 
+  const handleAiGenerate = async () => {
+    if (!aiPrompt.trim()) return;
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/generate-store", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiPrompt, email: form.getValues().email || 'ai@example.com' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      // Success
+      setIsGenerating(false);
+      setCurrentStep(4);
+      setTimeout(() => {
+        router.push("/admin");
+      }, 2000);
+    } catch (error: any) {
+      console.error(error);
+      alert("Failed to generate store via AI: " + (error.message || error));
+      setIsGenerating(false);
+    }
+  };
+
   const formVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as any } },
@@ -111,18 +139,61 @@ export function OnboardingWizard() {
 
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-6 md:p-8 shadow-input bg-black border border-white/10 relative z-10 text-white">
-      <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
         <h2 className="font-bold text-xl text-neutral-200">
           {currentStep === 4 ? "Success" : steps[currentStep - 1]?.title}
         </h2>
-        <div className="text-sm font-mono text-neutral-500">
-          {currentStep < 4 ? `Step ${currentStep} of 3` : "Complete"}
-        </div>
+        {currentStep === 1 && (
+          <button 
+            onClick={() => setIsAiMode(!isAiMode)}
+            className="flex items-center gap-1.5 text-xs font-medium bg-indigo-500/10 text-indigo-400 px-3 py-1.5 rounded-full border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            {isAiMode ? "Manual Setup" : "AI Magic Mode"}
+          </button>
+        )}
+        {currentStep > 1 && currentStep < 4 && (
+          <div className="text-sm font-mono text-neutral-500">
+            Step {currentStep} of 3
+          </div>
+        )}
       </div>
 
       <AnimatePresence mode="wait">
-        <motion.div key={currentStep} variants={formVariants} initial="hidden" animate="visible" exit="exit">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <motion.div key={currentStep + (isAiMode ? 'ai' : 'manual')} variants={formVariants} initial="hidden" animate="visible" exit="exit">
+          {isAiMode && currentStep === 1 ? (
+            <div className="space-y-6">
+              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4">
+                <h3 className="text-indigo-300 font-medium flex items-center gap-2 mb-2">
+                  <Wand2 className="w-4 h-4" /> Text-to-Store Generation
+                </h3>
+                <p className="text-sm text-indigo-200/70">
+                  Describe what kind of store you want to build. Our AI will instantly generate the brand name, theme, and 5 fully-priced dummy products in your database!
+                </p>
+              </div>
+              
+              <LabelInputContainer>
+                <Label htmlFor="aiPrompt">What are you selling?</Label>
+                <textarea 
+                  id="aiPrompt" 
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  placeholder="e.g. I want to sell premium high-protein gym supplements and pre-workout for athletes." 
+                  className="min-h-[120px] bg-zinc-900 border-none rounded-md p-3 text-sm text-white placeholder-neutral-500 focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
+                />
+              </LabelInputContainer>
+
+              <button
+                onClick={handleAiGenerate}
+                disabled={isGenerating || !aiPrompt.trim()}
+                className="w-full relative group/btn bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md font-medium text-sm transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                {isGenerating ? "AI is building your store (takes ~10s)..." : "Generate Store & Inventory"}
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {currentStep === 1 && (
               <>
                 <LabelInputContainer>
@@ -209,10 +280,11 @@ export function OnboardingWizard() {
               </div>
             )}
           </form>
+          )}
         </motion.div>
       </AnimatePresence>
 
-      {currentStep < 4 && (
+      {currentStep < 4 && !isAiMode && (
         <>
           <div className="bg-gradient-to-r from-transparent via-neutral-700 to-transparent my-8 h-[1px] w-full" />
           <div className="flex justify-between">
