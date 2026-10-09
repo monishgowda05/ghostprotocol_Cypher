@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const { prompt, email } = await req.json();
 
     const result = await generateObject({
-      model: groq('llama-3.1-8b-instant'),
+      model: groq('llama3-8b-8192'),
       schema: z.object({
         storeName: z.string().describe('A catchy, professional name for the store'),
         domain: z.string().describe('A URL-friendly domain slug (lowercase, no spaces)'),
