@@ -16,7 +16,7 @@ export function ChatWidget() {
 
 function ChatWidgetInner() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat() as any;
+  const { messages = [], input = '', handleInputChange, handleSubmit, isLoading = false } = useChat() as any;
 
   return (
     <div className="z-50 relative">
