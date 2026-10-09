@@ -1,4 +1,4 @@
-import { openai } from '@ai-sdk/openai';
+import { groq } from '@ai-sdk/groq';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 
@@ -27,9 +27,9 @@ export async function POST(req: Request) {
     4. If the user asks for a price, provide exactly what is listed.
   `;
 
-  // Start the streaming AI response
+  // Start the streaming AI response using Groq
   const result = await streamText({
-    model: openai('gpt-4o-mini'),
+    model: groq('llama3-8b-8192'),
     messages: [
       { role: 'system', content: systemPrompt },
       ...messages
