@@ -47,7 +47,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="text-sm font-medium font-mono text-emerald-400">
-                    +${(Math.random() * 100).toFixed(2)}
+                    +${(14.5 * i + 23.4).toFixed(2)}
                   </div>
                 </div>
               ))}
