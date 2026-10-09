@@ -45,14 +45,19 @@ export function OnboardingWizard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(currentStep === 1 ? step1Schema : currentStep === 2 ? step2Schema : step3Schema),
+    resolver: zodResolver(formSchema),
     mode: "onChange",
     shouldUnregister: false,
     defaultValues: { storeName: "", domain: "", email: "", category: "", businessType: "", theme: "dark" },
   });
 
   const nextStep = async () => {
-    const isValid = await form.trigger();
+    let fieldsToValidate: any = [];
+    if (currentStep === 1) fieldsToValidate = ["storeName", "domain", "email"];
+    if (currentStep === 2) fieldsToValidate = ["category", "businessType"];
+    if (currentStep === 3) fieldsToValidate = ["theme"];
+    
+    const isValid = await form.trigger(fieldsToValidate);
     if (isValid) setCurrentStep((prev) => prev + 1);
   };
 
@@ -100,7 +105,7 @@ export function OnboardingWizard() {
 
   const formVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as any } },
     exit: { opacity: 0, y: -20, transition: { duration: 0.2 } }
   };
 
@@ -123,7 +128,7 @@ export function OnboardingWizard() {
                 <LabelInputContainer>
                   <Label htmlFor="storeName">Store Name</Label>
                   <Input id="storeName" placeholder="My Awesome Store" {...form.register("storeName")} />
-                  {form.formState.errors.storeName && <ErrorMsg msg={form.formState.errors.storeName.message} />}
+                  {form.formState.errors.storeName && <ErrorMsg msg={form.formState.errors.storeName?.message as string} />}
                 </LabelInputContainer>
                 
                 <LabelInputContainer>
@@ -134,13 +139,13 @@ export function OnboardingWizard() {
                       .launchyourstore.com
                     </div>
                   </div>
-                  {form.formState.errors.domain && <ErrorMsg msg={form.formState.errors.domain.message} />}
+                  {form.formState.errors.domain && <ErrorMsg msg={form.formState.errors.domain?.message as string} />}
                 </LabelInputContainer>
 
                 <LabelInputContainer>
                   <Label htmlFor="email">Contact Email</Label>
                   <Input id="email" type="email" placeholder="hello@example.com" {...form.register("email")} />
-                  {form.formState.errors.email && <ErrorMsg msg={form.formState.errors.email.message} />}
+                  {form.formState.errors.email && <ErrorMsg msg={form.formState.errors.email?.message as string} />}
                 </LabelInputContainer>
               </>
             )}
@@ -159,7 +164,7 @@ export function OnboardingWizard() {
                       <SelectItem value="digital">Digital Products</SelectItem>
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.category && <ErrorMsg msg={form.formState.errors.category.message} />}
+                  {form.formState.errors.category && <ErrorMsg msg={form.formState.errors.category?.message as string} />}
                 </LabelInputContainer>
 
                 <LabelInputContainer>
@@ -173,7 +178,7 @@ export function OnboardingWizard() {
                       <SelectItem value="services">Services / Booking</SelectItem>
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.businessType && <ErrorMsg msg={form.formState.errors.businessType.message} />}
+                  {form.formState.errors.businessType && <ErrorMsg msg={form.formState.errors.businessType?.message as string} />}
                 </LabelInputContainer>
               </>
             )}
@@ -193,7 +198,7 @@ export function OnboardingWizard() {
                     </div>
                   ))}
                 </div>
-                {form.formState.errors.theme && <ErrorMsg msg={form.formState.errors.theme.message} />}
+                {form.formState.errors.theme && <ErrorMsg msg={form.formState.errors.theme?.message as string} />}
               </LabelInputContainer>
             )}
 
