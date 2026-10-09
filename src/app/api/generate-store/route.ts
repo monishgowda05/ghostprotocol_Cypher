@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const { prompt, email } = await req.json();
 
     const result = await generateObject({
-      model: groq('llama3-8b-8192'),
+      model: groq('qwen/qwen3.8-27b'),
       schema: z.object({
         storeName: z.string().describe('A catchy, professional name for the store'),
         domain: z.string().describe('A URL-friendly domain slug (lowercase, no spaces)'),
@@ -36,9 +36,11 @@ export async function POST(req: Request) {
     const { data: store, error: storeError } = await supabase
       .from('stores')
       .insert({
-        name: storeName,
+        store_name: storeName,
         domain: domain,
-        owner_email: email || 'ai@example.com',
+        email: email || 'ai@example.com',
+        category: category,
+        business_type: 'retail', // Default for AI generated stores
         theme: theme
       })
       .select()

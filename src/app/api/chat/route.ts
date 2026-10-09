@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
   // Start the streaming AI response using Groq
   const result = await streamText({
-    model: groq('llama3-8b-8192'),
+    model: groq('qwen/qwen3.8-27b'),
     messages: [
       { role: 'system', content: systemPrompt },
       ...messages
